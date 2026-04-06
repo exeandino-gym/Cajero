@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0500">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CajeroPlat">
+<title>CajeroPlat</title>
+<link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;CajeroPlat&quot;,&quot;short_name&quot;:&quot;CajeroPlat&quot;,&quot;start_url&quot;:&quot;.&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;#0a0500&quot;,&quot;theme_color&quot;:&quot;#0a0500&quot;,&quot;icons&quot;:[{&quot;src&quot;:&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='36' fill='%230a0500'/%3E%3Ccircle cx='96' cy='96' r='72' fill='none' stroke='%23c9a227' stroke-width='6'/%3E%3Ccircle cx='96' cy='96' r='52' fill='%23c9a227' opacity='.15'/%3E%3Ctext x='96' y='112' font-family='Arial Black,sans-serif' font-size='60' font-weight='900' fill='%23c9a227' text-anchor='middle'%3E%24%3C/text%3E%3C/svg%3E&quot;,&quot;sizes&quot;:&quot;192x192&quot;,&quot;type&quot;:&quot;image/svg+xml&quot;}]}">
+<style>
+:root {
+  --bg:     #0a0500;
+  --bg2:    #110a00;
+  --surf:   #1a1000;
+  --surf2:  #241500;
+  --border: #3d2800;
+  --gold:   #c9a227;
+  --gold2:  #f0c84a;
+  --red:    #e03535;
+  --green:  #22c55e;
+  --blue:   #60a5fa;
+  --text:   #f5e6c8;
+  --muted:  #8a7050;
+  --r:      10px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, 'Segoe UI', sans-serif; min-height: 100vh; font-size: 15px; }
+
+/* ===== SPLASH ===== */
+#splash {
+  position: fixed; inset: 0; z-index: 999;
+  background: radial-gradient(ellipse at 50% 35%, #2a1800 0%, #110800 50%, #000 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  animation: splashOut 0s ease 2.6s forwards;
+}
+@keyframes splashOut { to { opacity: 0; visibility: hidden; pointer-events: none; } }
+.splash-ring {
+  width: 140px; height: 140px; border-radius: 50%;
+  border: 4px solid var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 40px #c9a22760, 0 0 80px #c9a22730;
+  animation: ringPulse 1.8s ease-in-out infinite;
+  margin-bottom: 28px;
+}
+@keyframes ringPulse { 0%,100% { box-shadow: 0 0 30px #c9a22760, 0 0 60px #c9a22720; } 50% { box-shadow: 0 0 50px #c9a227a0, 0 0 100px #c9a22750; } }
+.splash-icon { font-size: 70px; line-height: 1; animation: iconIn .6s ease .2s both; }
+@keyframes iconIn { from { opacity:0; transform: scale(.5); } to { opacity:1; transform: scale(1); } }
+.splash-name {
+  font-size: 34px; font-weight: 900; letter-spacing: -1px;
+  color: var(--gold); text-shadow: 0 0 30px #c9a22780;
+  animation: fadeUp .6s ease .5s both;
+}
+.splash-name span { color: #fff; }
+.splash-sub {
+  font-size: 13px; color: var(--muted); letter-spacing: 2px;
+  text-transform: uppercase; margin-top: 8px;
+  animation: fadeUp .6s ease .7s both;
+}
+.splash-dots { display: flex; gap: 8px; margin-top: 40px; animation: fadeUp .6s ease .9s both; }
+.splash-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); opacity: .3; animation: dotBlink 1.2s ease infinite; }
+.splash-dot:nth-child(2) { animation-delay: .2s; }
+.splash-dot:nth-child(3) { animation-delay: .4s; }
+@keyframes dotBlink { 0%,100% { opacity: .2; } 50% { opacity: 1; } }
+@keyframes fadeUp { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+/* ===== TOPBAR ===== */
+.topbar {
+  background: var(--surf);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px; height: 54px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 40;
+  background: linear-gradient(90deg, #1a1000, #241500);
+}
+.app-name { font-size: 19px; font-weight: 900; letter-spacing: -.5px; color: var(--gold); }
+.app-name span { color: #fff; }
+.wk-badge {
+  font-size: 11px; font-weight: 600; color: var(--gold);
+  background: var(--surf2); border: 1px solid var(--border);
+  border-radius: 20px; padding: 3px 11px;
+}
+
+/* ===== NAV ===== */
+.nav {
+  display: flex; overflow-x: auto;
+  background: var(--surf2); border-bottom: 2px solid var(--border);
+}
+.nav::-webkit-scrollbar { display: none; }
+.nav-tab {
+  flex-shrink: 0; padding: 11px 18px;
+  font-size: 13px; font-weight: 700; color: var(--muted);
+  cursor: pointer; border-bottom: 2px solid transparent;
+  white-space: nowrap; touch-action: manipulation;
+  transition: color .15s;
+}
+.nav-tab.on { color: var(--gold2); border-bottom-color: var(--gold); }
+
+/* ===== PAGES ===== */
+.page { padding: 16px; max-width: 680px; margin: 0 auto; display: none; }
+.page.on { display: block; }
+
+/* ===== STATS ===== */
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+@media(min-width: 480px) { .stats { grid-template-columns: repeat(3, 1fr); } }
+.stat {
+  background: linear-gradient(135deg, var(--surf) 0%, var(--surf2) 100%);
+  border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px;
+  position: relative; overflow: hidden;
+}
+.stat::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+}
+.stat-l { font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.stat-v { font-size: 20px; font-weight: 900; color: var(--gold); font-variant-numeric: tabular-nums; line-height: 1; }
+
+/* ===== CARD ===== */
+.card { background: var(--surf); border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 12px; overflow: hidden; }
+.card-title {
+  padding: 11px 14px; font-size: 10px; font-weight: 700;
+  letter-spacing: .8px; text-transform: uppercase; color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(90deg, var(--surf2), var(--surf));
+}
+
+/* ===== PLATFORM BLOCK ===== */
+.plat { background: var(--surf); border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 12px; overflow: hidden; }
+.plat-head {
+  padding: 13px 16px; display: flex; align-items: center;
+  justify-content: space-between; gap: 8px;
+  border-bottom: 1px solid var(--border); flex-wrap: wrap;
+  background: linear-gradient(90deg, var(--surf2) 0%, var(--surf) 100%);
+}
+.plat-left { display: flex; align-items: center; gap: 9px; }
+.plat-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 8px var(--gold);
+  flex-shrink: 0;
+}
+.plat-name { font-weight: 800; font-size: 16px; color: var(--text); }
+.plat-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.plat-tot { font-size: 16px; font-weight: 900; color: var(--gold); font-variant-numeric: tabular-nums; }
+.plat-body { padding: 12px 14px; }
+
+/* ===== TABLE ===== */
+.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tbl th { text-align: left; padding: 7px 10px; font-size: 10px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
+.tbl td { padding: 10px 10px; border-bottom: 1px solid #3d280040; vertical-align: middle; }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr:hover td { background: var(--surf2); }
+
+/* ===== BUTTONS ===== */
+.btn { display: inline-flex; align-items: center; justify-content: center; border: none; border-radius: 8px; font-family: inherit; font-weight: 800; cursor: pointer; transition: opacity .12s, transform .1s; touch-action: manipulation; text-decoration: none; }
+.btn:active { opacity: .75; transform: scale(.97); }
+.bg  { background: linear-gradient(135deg, var(--gold), #b8860b); color: #000; }
+.bgr { background: var(--surf2); color: var(--text); border: 1px solid var(--border); }
+.br  { background: transparent; color: var(--red); border: 1px solid var(--red); }
+.bwa { background: #25D366; color: #fff; }
+.lg  { font-size: 14px; padding: 13px 20px; width: 100%; }
+.md  { font-size: 13px; padding: 9px 16px; }
+.sm  { font-size: 12px; padding: 5px 11px; }
+
+.act-row { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+
+/* ===== FORM ===== */
+.field { margin-bottom: 13px; }
+.field label { display: block; font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+.field input { width: 100%; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--text); font-size: 15px; font-family: inherit; outline: none; }
+.field input:focus { border-color: var(--gold); }
+
+/* ===== PILL ===== */
+.pill { display: inline-flex; align-items: center; font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 20px; letter-spacing: .4px; }
+.pcl { background: #3d280040; color: var(--muted); border: 1px solid var(--border); }
+
+/* ===== COMM BOX ===== */
+.comm { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; margin-top: 12px; }
+.cr { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid #3d280040; font-size: 14px; }
+.cr:last-child { border-bottom: none; }
+.cl { color: var(--muted); }
+.cv { font-weight: 700; font-variant-numeric: tabular-nums; }
+.ct { background: #0a0500; }
+.ct .cl { color: var(--text); font-weight: 700; }
+.ct .cv { color: var(--gold); font-size: 18px; }
+
+/* ===== HISTORIAL ===== */
+.hist-card { background: var(--surf); border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 14px; overflow: hidden; }
+.hist-head { padding: 14px 16px; display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; border-bottom: 1px solid var(--border); background: linear-gradient(90deg, var(--surf2), var(--surf)); }
+.hist-body { padding: 14px 16px; }
+
+/* ===== MODAL ===== */
+.overlay { display: none; position: fixed; inset: 0; background: #00000095; z-index: 100; align-items: flex-end; justify-content: center; }
+.overlay.on { display: flex; }
+.modal { background: var(--surf); border-top: 2px solid var(--gold); border-radius: 18px 18px 0 0; padding: 22px 18px; width: 100%; max-width: 520px; animation: su .2s ease; }
+@keyframes su { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-title { font-size: 16px; font-weight: 800; margin-bottom: 16px; color: var(--gold); }
+.modal-btns { display: flex; gap: 10px; margin-top: 14px; }
+.modal-btns .btn { flex: 1; }
+
+/* ===== EMPTY ===== */
+.empty { text-align: center; padding: 40px 16px; color: var(--muted); font-size: 14px; }
+.eico { font-size: 40px; margin-bottom: 10px; }
+
+/* ===== TOAST ===== */
+#toast {
+  position: fixed; bottom: 22px; left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--gold); color: #000;
+  font-weight: 800; font-size: 13px; padding: 9px 20px;
+  border-radius: 20px; opacity: 0; transition: all .22s;
+  z-index: 999; white-space: nowrap; pointer-events: none;
+}
+#toast.on  { opacity: 1; transform: translateX(-50%) translateY(0); }
+#toast.err { background: var(--red); color: #fff; }
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-ring">
+    <div class="splash-icon">&#127922;</div>
+  </div>
+  <div class="splash-name">Cajero<span>Plat</span></div>
+  <div class="splash-sub">Casino Online</div>
+  <div class="splash-dots">
+    <div class="splash-dot"></div>
+    <div class="splash-dot"></div>
+    <div class="splash-dot"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="topbar">
+  <div class="app-name">&#127922; Cajero<span>Plat</span></div>
+  <div class="wk-badge" id="wk-lbl">--</div>
+</div>
+<div class="nav">
+  <div class="nav-tab on"  onclick="goTab(0)">Semana</div>
+  <div class="nav-tab"     onclick="goTab(1)">Plataformas</div>
+  <div class="nav-tab"     onclick="goTab(2)">Respaldos</div>
+  <div class="nav-tab"     onclick="goTab(3)">Historial</div>
+</div>
+
+<div class="page on" id="pg0"></div>
+<div class="page"    id="pg1"></div>
+<div class="page"    id="pg2"></div>
+<div class="page"    id="pg3"></div>
+
+<!-- Modal caja -->
+<div class="overlay" id="mo-caja">
+  <div class="modal">
+    <div class="modal-title" id="mc-tit">Cargar Caja</div>
+    <div class="field"><label>Monto ($)</label><input id="mc-monto" type="number" placeholder="Ej: 300000" inputmode="numeric" /></div>
+    <div class="field"><label>Fecha</label><input id="mc-fecha" type="date" /></div>
+    <div class="field"><label>Observacion (opcional)</label><input id="mc-obs" type="text" placeholder="Ej: turno manana" /></div>
+    <div class="modal-btns">
+      <button class="btn bgr md" onclick="cm('mo-caja')">Cancelar</button>
+      <button class="btn bg  md" onclick="saveCaja()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal plataforma -->
+<div class="overlay" id="mo-plat">
+  <div class="modal">
+    <div class="modal-title">Nueva Plataforma</div>
+    <div class="field"><label>Nombre</label><input id="mp-nom" type="text" placeholder="Ej: Rhino, Ganamos..." /></div>
+    <div class="modal-btns">
+      <button class="btn bgr md" onclick="cm('mo-plat')">Cancelar</button>
+      <button class="btn bg  md" onclick="savePlat()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal respaldo -->
+<div class="overlay" id="mo-resp">
+  <div class="modal">
+    <div class="modal-title">Registrar Respaldo</div>
+    <div class="field"><label>Monto ($)</label><input id="mr-monto" type="number" placeholder="Ej: 50000" inputmode="numeric" /></div>
+    <div class="field"><label>Descripcion (opcional)</label><input id="mr-desc" type="text" placeholder="Ej: premio jackpot" /></div>
+    <div class="modal-btns">
+      <button class="btn bgr md" onclick="cm('mo-resp')">Cancelar</button>
+      <button class="btn bg  md" onclick="saveResp()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal cierre -->
+<div class="overlay" id="mo-cierre">
+  <div class="modal">
+    <div class="modal-title">Cerrar Semana</div>
+    <p id="mci-msg" style="font-size:13px;margin-bottom:14px;color:var(--muted)">Ingresa el porcentaje de comision segun tus ventas de esta semana.</p>
+    <div class="field" id="mci-wrap"><label>Porcentaje (%)</label><input id="mci-pct" type="number" placeholder="Ej: 50" inputmode="numeric" oninput="prevCierre()" /></div>
+    <div id="mci-prev"></div>
+    <div class="modal-btns">
+      <button class="btn bgr md" onclick="cm('mo-cierre')">Cancelar</button>
+      <button class="btn bg  md" onclick="confirmCierre()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+var KP = 'cp_plats', KC = 'cp_cajas', KR = 'cp_resps', KW = 'cp_weeks';
+
+function ld(k) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : []; } catch(e) { return []; } }
+function sv(k,v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
+function gP() { return ld(KP); } function gC() { return ld(KC); }
+function gR() { return ld(KR); } function gW() { return ld(KW); }
+function sP(v) { sv(KP,v); } function sC(v) { sv(KC,v); }
+function sR(v) { sv(KR,v); } function sW(v) { sv(KW,v); }
+
+function wkKey(ds) {
+  var dt = ds ? new Date(ds + 'T12:00:00') : new Date();
+  var dw = dt.getDay();
+  var df = (dw === 0) ? -6 : (1 - dw);
+  var mn = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate() + df);
+  var m = mn.getMonth() + 1; var d = mn.getDate();
+  return mn.getFullYear() + '-' + (m<10?'0':'') + m + '-' + (d<10?'0':'') + d;
+}
+function wkLbl(wk) {
+  var s = new Date(wk + 'T12:00:00'); var e = new Date(wk + 'T12:00:00');
+  e.setDate(e.getDate() + 6);
+  var o = { day: '2-digit', month: 'short' };
+  return s.toLocaleDateString('es-AR', o) + ' - ' + e.toLocaleDateString('es-AR', o);
+}
+function hoy() {
+  var n = new Date(); var m = n.getMonth() + 1; var d = n.getDate();
+  return n.getFullYear() + '-' + (m<10?'0':'') + m + '-' + (d<10?'0':'') + d;
+}
+function fD(s) { if (!s) return '-'; var p = s.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+function fM(n) { return Number(n).toLocaleString('es-AR'); }
+function nId() { return 'i' + Date.now().toString(36) + Math.random().toString(36).slice(2,5); }
+
+function curWk() {
+  var wk = wkKey(); var ws = gW(); var ok = false;
+  for (var i = 0; i < ws.length; i++) { if (ws[i].key === wk) { ok = true; break; } }
+  if (!ok) { ws.push({ key: wk, label: wkLbl(wk), status: 'open', pct: null, negCarry: 0 }); sW(ws); }
+  document.getElementById('wk-lbl').textContent = wkLbl(wk);
+  return wk;
+}
+function getWkObj(wk) {
+  var ws = gW();
+  for (var i = 0; i < ws.length; i++) { if (ws[i].key === wk) return ws[i]; }
+  return null;
+}
+function getCarry(wk) {
+  var ws = gW(); var best = null;
+  for (var i = 0; i < ws.length; i++) {
+    var w = ws[i];
+    if (w.status === 'closed' && w.key < wk) { if (!best || w.key > best.key) best = w; }
+  }
+  return best ? (best.negCarry || 0) : 0;
+}
+function calcWk(wk) {
+  var cs = gC(); var rs = gR(); var cargas = 0; var resp = 0;
+  for (var i = 0; i < cs.length; i++) { if (cs[i].wk === wk) cargas += Number(cs[i].monto); }
+  for (var i = 0; i < rs.length; i++) { if (rs[i].wk === wk) resp   += Number(rs[i].monto); }
+  var carry = getCarry(wk); var bruto = cargas - resp; var saldo = bruto - carry;
+  return { cargas: cargas, resp: resp, carry: carry, bruto: bruto, saldo: saldo };
+}
+
+var APid = ''; var APnm = ''; var CurTab = 0;
+
+function goTab(n) {
+  CurTab = n;
+  var tabs = document.querySelectorAll('.nav-tab');
+  var pages = document.querySelectorAll('.page');
+  for (var i = 0; i < tabs.length; i++) { tabs[i].classList.remove('on'); pages[i].classList.remove('on'); }
+  tabs[n].classList.add('on'); pages[n].classList.add('on');
+  if (n === 0) rSemana(); if (n === 1) rPlats();
+  if (n === 2) rResps();  if (n === 3) rHist();
+}
+
+function rSemana() {
+  var wk = curWk(); var w = getWkObj(wk); var d = calcWk(wk);
+  var open = w && w.status === 'open';
+  var ps = gP(); var cs = gC();
+  var rows = '';
+  if (ps.length === 0) {
+    rows = '<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:14px">Agrega plataformas en la pestana Plataformas</td></tr>';
+  } else {
+    for (var i = 0; i < ps.length; i++) {
+      var tot = 0; var cnt = 0;
+      for (var j = 0; j < cs.length; j++) {
+        if (cs[j].platId === ps[i].id && cs[j].wk === wk) { tot += Number(cs[j].monto); cnt++; }
+      }
+      rows += '<tr><td>' + ps[i].name + '</td><td style="color:var(--muted)">' + cnt + ' caja' + (cnt!==1?'s':'') + '</td><td style="color:var(--gold);font-weight:700">$' + fM(tot) + '</td></tr>';
+    }
+  }
+  var negSt = '';
+  if (d.carry > 0) {
+    negSt = '<div class="stat"><div class="stat-l">Deuda anterior</div><div class="stat-v" style="color:var(--red)">-$' + fM(d.carry) + '</div></div>';
+  }
+  var sCol = d.saldo < 0 ? 'var(--red)' : 'var(--blue)';
+  var sStr = (d.saldo < 0 ? '-$' : '$') + fM(Math.abs(d.saldo));
+  var comSt = '';
+  if (w && !open && w.pct != null) {
+    var isNeg = d.saldo < 0;
+    var com = isNeg ? 0 : Math.round(d.saldo * w.pct / 100);
+    comSt = '<div class="stat"><div class="stat-l">Comision (' + w.pct + '%)</div><div class="stat-v">$' + fM(com) + '</div></div>';
+  }
+  var btns = '';
+  if (open) {
+    btns = '<div class="act-row">'
+      + '<button class="btn bg md" onclick="goTab(1)">+ Cargar caja</button>'
+      + '<button class="btn bgr md" onclick="om(\'mo-resp\')">+ Respaldo</button>'
+      + '<button class="btn bgr md" onclick="abrirCierre()">Cerrar semana</button>'
+      + '</div>';
+  }
+  var h = btns
+    + '<div class="stats">'
+    + '<div class="stat"><div class="stat-l">Total Cargas</div><div class="stat-v">$' + fM(d.cargas) + '</div></div>'
+    + '<div class="stat"><div class="stat-l">Respaldo</div><div class="stat-v" style="color:var(--red)">$' + fM(d.resp) + '</div></div>'
+    + negSt
+    + '<div class="stat"><div class="stat-l">Saldo Neto</div><div class="stat-v" style="color:' + sCol + '">' + sStr + '</div></div>'
+    + comSt + '</div>'
+    + '<div class="card"><div class="card-title">Cajas por plataforma esta semana</div>'
+    + '<table class="tbl"><thead><tr><th>Plataforma</th><th>Cajas</th><th>Total</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+  document.getElementById('pg0').innerHTML = h;
+}
+
+function rPlats() {
+  var wk = curWk(); var ps = gP(); var cs = gC();
+  var h = '<div class="act-row"><button class="btn bg md" onclick="om(\'mo-plat\')">+ Nueva plataforma</button></div>';
+  if (ps.length === 0) {
+    h += '<div class="empty"><div class="eico">&#127922;</div><p>No tenes plataformas aun.<br>Agrega la primera con el boton de arriba.</p></div>';
+    document.getElementById('pg1').innerHTML = h; return;
+  }
+  for (var i = 0; i < ps.length; i++) {
+    var p = ps[i]; var tot = 0; var cjs = [];
+    for (var j = 0; j < cs.length; j++) {
+      if (cs[j].platId === p.id && cs[j].wk === wk) { cjs.push(cs[j]); tot += Number(cs[j].monto); }
+    }
+    cjs.sort(function(a,b){ return a.fecha < b.fecha ? 1 : -1; });
+    var rows = '';
+    if (cjs.length === 0) {
+      rows = '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:14px">Sin cajas esta semana</td></tr>';
+    } else {
+      for (var k = 0; k < cjs.length; k++) {
+        var cj = cjs[k];
+        rows += '<tr><td>' + fD(cj.fecha) + '</td><td style="color:var(--gold);font-weight:700">$' + fM(cj.monto) + '</td><td style="color:var(--muted)">' + (cj.obs || '-') + '</td><td style="text-align:right"><button class="btn br sm" onclick="delCaja(\'' + cj.id + '\')">x</button></td></tr>';
+      }
+    }
+    h += '<div class="plat"><div class="plat-head"><div class="plat-left"><span class="plat-dot"></span><span class="plat-name">' + p.name + '</span></div>'
+      + '<div class="plat-right"><span class="plat-tot">$' + fM(tot) + '</span>'
+      + '<button class="btn bg sm" onclick="abrirCaja(\'' + p.id + '\',\'' + p.name + '\')">+ Caja</button>'
+      + '<button class="btn br sm" onclick="delPlat(\'' + p.id + '\')">x</button>'
+      + '</div></div><div class="plat-body"><table class="tbl"><thead><tr><th>Fecha</th><th>Monto</th><th>Obs</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div></div>';
+  }
+  document.getElementById('pg1').innerHTML = h;
+}
+
+function rResps() {
+  var wk = curWk(); var all = gR(); var arr = [];
+  for (var i = 0; i < all.length; i++) { if (all[i].wk === wk) arr.push(all[i]); }
+  arr.sort(function(a,b){ return b.ts - a.ts; });
+  var h = '<div class="act-row"><button class="btn bg md" onclick="om(\'mo-resp\')">+ Registrar respaldo</button></div>';
+  if (arr.length === 0) {
+    h += '<div class="empty"><div class="eico">&#128737;</div><p>Sin respaldos registrados esta semana.</p></div>';
+  } else {
+    var rows = '';
+    for (var i = 0; i < arr.length; i++) {
+      var r = arr[i]; var fd = new Date(r.ts);
+      var mm = fd.getMonth() + 1; var dd = fd.getDate();
+      var ds = fd.getFullYear() + '-' + (mm<10?'0':'') + mm + '-' + (dd<10?'0':'') + dd;
+      rows += '<tr><td>' + fD(ds) + '</td><td style="color:var(--red);font-weight:700">$' + fM(r.monto) + '</td><td style="color:var(--muted)">' + (r.desc || '-') + '</td><td style="text-align:right"><button class="btn br sm" onclick="delResp(\'' + r.id + '\')">x</button></td></tr>';
+    }
+    h += '<div class="card"><table class="tbl"><thead><tr><th>Fecha</th><th>Monto</th><th>Descripcion</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+  }
+  document.getElementById('pg2').innerHTML = h;
+}
+
+function rHist() {
+  var ws = gW(); var closed = [];
+  for (var i = 0; i < ws.length; i++) { if (ws[i].status === 'closed') closed.push(ws[i]); }
+  closed.sort(function(a,b){ return a.key < b.key ? 1 : -1; });
+  if (closed.length === 0) {
+    document.getElementById('pg3').innerHTML = '<div class="empty"><div class="eico">&#128193;</div><p>Todavia no cerraste ninguna semana.</p></div>';
+    return;
+  }
+  var h = '';
+  for (var i = 0; i < closed.length; i++) {
+    var w = closed[i]; var d = calcWk(w.key);
+    var isNeg = d.saldo < 0;
+    var com = isNeg ? 0 : Math.round(d.saldo * (w.pct || 0) / 100);
+    var sStr = (isNeg ? '-$' : '$') + fM(Math.abs(d.saldo));
+    var sCol = isNeg ? 'var(--red)' : 'var(--blue)';
+    var txt = 'Reporte Semanal - ' + w.label + '\nCargas: $' + fM(d.cargas) + '\nRespaldo: $' + fM(d.resp);
+    if (d.carry > 0) txt += '\nDeuda anterior: -$' + fM(d.carry);
+    txt += '\nSaldo Neto: ' + sStr;
+    txt += isNeg ? '\nComision: $0 (saldo negativo, se arrastra $' + fM(Math.abs(d.saldo)) + ' a proxima semana)' : '\nComision (' + w.pct + '%): $' + fM(com);
+    var waUrl = 'https://wa.me/?text=' + encodeURIComponent(txt);
+    var crRow = d.carry > 0 ? '<div class="cr"><span class="cl">Deuda anterior descontada</span><span class="cv" style="color:var(--red)">-$' + fM(d.carry) + '</span></div>' : '';
+    var negRow = isNeg ? '<div class="cr"><span class="cl" style="color:var(--red)">Se arrastra a proxima semana</span><span class="cv" style="color:var(--red)">-$' + fM(Math.abs(d.saldo)) + '</span></div>' : '';
+    h += '<div class="hist-card"><div class="hist-head"><div><div style="font-weight:800;font-size:15px;color:var(--gold)">' + w.label + '</div><div style="font-size:12px;color:var(--muted);margin-top:2px">' + (isNeg ? 'Saldo negativo' : 'Comision: ' + w.pct + '%') + '</div></div><span class="pill pcl">CERRADA</span></div>'
+      + '<div class="hist-body"><div class="comm">'
+      + '<div class="cr"><span class="cl">Total Cargas</span><span class="cv" style="color:var(--gold)">$' + fM(d.cargas) + '</span></div>'
+      + '<div class="cr"><span class="cl">Total Respaldo</span><span class="cv" style="color:var(--red)">$' + fM(d.resp) + '</span></div>'
+      + crRow
+      + '<div class="cr"><span class="cl">Saldo Neto</span><span class="cv" style="color:' + sCol + '">' + sStr + '</span></div>'
+      + negRow
+      + '<div class="cr ct"><span class="cl">Tu Comision</span><span class="cv">$' + fM(com) + '</span></div></div>'
+      + '<a href="' + waUrl + '" target="_blank" class="btn bwa lg" style="margin-top:12px">&#128172; Enviar reporte por WhatsApp</a>'
+      + '</div></div>';
+  }
+  document.getElementById('pg3').innerHTML = h;
+}
+
+function savePlat() {
+  var nm = document.getElementById('mp-nom').value.trim();
+  if (!nm) { toast('Ingresa un nombre', 1); return; }
+  var ps = gP(); ps.push({ id: nId(), name: nm }); sP(ps);
+  document.getElementById('mp-nom').value = '';
+  cm('mo-plat'); toast('Plataforma agregada'); rPlats();
+}
+function delPlat(pid) {
+  if (!confirm('Eliminar esta plataforma?')) return;
+  var ps = gP(); var a = []; for (var i = 0; i < ps.length; i++) { if (ps[i].id !== pid) a.push(ps[i]); }
+  sP(a); toast('Plataforma eliminada'); rPlats();
+}
+function abrirCaja(pid, pnm) {
+  APid = pid; APnm = pnm;
+  document.getElementById('mc-tit').textContent = 'Cargar Caja - ' + pnm;
+  document.getElementById('mc-monto').value = '';
+  document.getElementById('mc-fecha').value = hoy();
+  document.getElementById('mc-obs').value   = '';
+  om('mo-caja');
+}
+function saveCaja() {
+  var raw = document.getElementById('mc-monto').value;
+  var fecha = document.getElementById('mc-fecha').value;
+  var obs = document.getElementById('mc-obs').value.trim();
+  var monto = Number(raw);
+  if (!raw || isNaN(monto) || monto <= 0) { toast('Ingresa un monto valido', 1); return; }
+  if (!fecha) { toast('Ingresa la fecha', 1); return; }
+  if (!APid)  { toast('Error: sin plataforma', 1); return; }
+  var wk = wkKey(fecha); var ws = gW(); var ok = false;
+  for (var i = 0; i < ws.length; i++) { if (ws[i].key === wk) { ok = true; break; } }
+  if (!ok) { ws.push({ key: wk, label: wkLbl(wk), status: 'open', pct: null, negCarry: 0 }); sW(ws); }
+  var cs = gC(); cs.push({ id: nId(), platId: APid, monto: monto, fecha: fecha, obs: obs, wk: wk }); sC(cs);
+  cm('mo-caja'); toast('Caja cargada en ' + APnm); rSemana(); rPlats();
+}
+function delCaja(cid) {
+  var cs = gC(); var a = []; for (var i = 0; i < cs.length; i++) { if (cs[i].id !== cid) a.push(cs[i]); }
+  sC(a); toast('Caja eliminada'); rSemana(); rPlats();
+}
+function saveResp() {
+  var raw = document.getElementById('mr-monto').value;
+  var desc = document.getElementById('mr-desc').value.trim();
+  var monto = Number(raw);
+  if (!raw || isNaN(monto) || monto <= 0) { toast('Ingresa un monto valido', 1); return; }
+  var rs = gR(); rs.push({ id: nId(), monto: monto, desc: desc, wk: curWk(), ts: Date.now() }); sR(rs);
+  document.getElementById('mr-monto').value = '';
+  document.getElementById('mr-desc').value  = '';
+  cm('mo-resp'); toast('Respaldo registrado'); rSemana();
+  if (CurTab === 2) rResps();
+}
+function delResp(rid) {
+  var rs = gR(); var a = []; for (var i = 0; i < rs.length; i++) { if (rs[i].id !== rid) a.push(rs[i]); }
+  sR(a); toast('Respaldo eliminado'); rSemana(); rResps();
+}
+function abrirCierre() {
+  var wk = curWk(); var d = calcWk(wk); var neg = d.saldo < 0;
+  var msg = document.getElementById('mci-msg');
+  var wrap = document.getElementById('mci-wrap');
+  document.getElementById('mci-pct').value = '';
+  document.getElementById('mci-prev').innerHTML = '';
+  if (neg) {
+    msg.textContent = 'Tu saldo es negativo. La comision sera $0 y el saldo se arrastrara a la proxima semana.';
+    msg.style.color = 'var(--red)'; wrap.style.display = 'none'; prevCierre();
+  } else {
+    msg.textContent = 'Ingresa el porcentaje de comision segun tus ventas de esta semana.';
+    msg.style.color = 'var(--muted)'; wrap.style.display = '';
+  }
+  om('mo-cierre');
+}
+function prevCierre() {
+  var wk = curWk(); var d = calcWk(wk); var neg = d.saldo < 0;
+  var pct = neg ? 0 : (Number(document.getElementById('mci-pct').value) || 0);
+  var com = neg ? 0 : Math.round(d.saldo * pct / 100);
+  var sStr = (neg ? '-$' : '$') + fM(Math.abs(d.saldo));
+  var sCol = neg ? 'var(--red)' : 'var(--blue)';
+  var crRow = d.carry > 0 ? '<div class="cr"><span class="cl">Deuda anterior</span><span class="cv" style="color:var(--red)">-$' + fM(d.carry) + '</span></div>' : '';
+  var negRow = neg ? '<div class="cr"><span class="cl" style="color:var(--red)">Se arrastrara proxima semana</span><span class="cv" style="color:var(--red)">-$' + fM(Math.abs(d.saldo)) + '</span></div>' : '';
+  document.getElementById('mci-prev').innerHTML =
+    '<div class="comm" style="margin-top:12px">'
+    + '<div class="cr"><span class="cl">Cargas</span><span class="cv" style="color:var(--gold)">$' + fM(d.cargas) + '</span></div>'
+    + '<div class="cr"><span class="cl">Respaldo</span><span class="cv" style="color:var(--red)">$' + fM(d.resp) + '</span></div>'
+    + crRow
+    + '<div class="cr"><span class="cl">Saldo Neto</span><span class="cv" style="color:' + sCol + '">' + sStr + '</span></div>'
+    + negRow
+    + '<div class="cr ct"><span class="cl">Tu Comision</span><span class="cv">$' + fM(com) + '</span></div></div>';
+}
+function confirmCierre() {
+  var wk = curWk(); var d = calcWk(wk); var neg = d.saldo < 0;
+  var pct = neg ? 0 : Number(document.getElementById('mci-pct').value);
+  if (!neg && !pct) { toast('Ingresa el porcentaje', 1); return; }
+  var ws = gW();
+  for (var i = 0; i < ws.length; i++) {
+    if (ws[i].key === wk) {
+      ws[i].status = 'closed'; ws[i].pct = pct;
+      ws[i].negCarry = neg ? Math.abs(d.saldo) : 0; break;
+    }
+  }
+  sW(ws); cm('mo-cierre');
+  toast(neg ? 'Semana cerrada - saldo negativo arrastrado' : 'Semana cerrada');
+  rSemana();
+}
+
+function om(id)  { document.getElementById(id).classList.add('on'); }
+function cm(id)  { document.getElementById(id).classList.remove('on'); }
+
+var _tt = null;
+function toast(msg, err) {
+  var el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'on' + (err ? ' err' : '');
+  clearTimeout(_tt); _tt = setTimeout(function() { el.className = ''; }, 2400);
+}
+
+var ovs = document.querySelectorAll('.overlay');
+for (var oi = 0; oi < ovs.length; oi++) {
+  (function(ov) {
+    ov.addEventListener('click', function(e) { if (e.target === ov) ov.classList.remove('on'); });
+  })(ovs[oi]);
+}
+
+curWk();
+rSemana();
+</script>
+</body>
+</html>
